@@ -1,32 +1,16 @@
 {
-  "name": "Ruby",
-  "displayName": "Ruby",
-  "version": "0.19.0",
-  "publisher": "rebornix",
-  "description": "Provides Ruby language and debugging support for Visual Studio Code",
+  "name": "RubyDebugger",
+  "displayName": "Ruby Debugger",
+  "version": "0.18.0",
+  "publisher": "Dlani Mendes",
+  "description": "Simple Tool to Debug Ruby and Rails",
   "author": {
-    "name": "Peng Lv"
+    "name": "Dlani Mendes"
   },
   "contributors": [
     {
-      "name": "Peng Lyu",
-      "url": "https://github.com/rebornix"
-    },
-    {
-      "name": "Bryan Hoekstra",
-      "url": "https://github.com/HookyQR"
-    },
-    {
-      "name": "Drew Cain",
-      "url": "https://github.com/groksrc"
-    },
-    {
-      "name": "Lex Li",
-      "url": "https://github.com/lextm"
-    },
-    {
-      "name": "Stafford Brunk",
-      "url": "https://github.com/wingrunr21"
+      "name": "Dlani Mendes",
+      "url": "https://github.com/dlanileonardo"
     }
   ],
   "engines": {
@@ -35,19 +19,15 @@
   "license": "MIT",
   "icon": "images/ruby.png",
   "categories": [
-    "Languages",
-    "Debuggers",
-    "Linters",
-    "Snippets",
-    "Formatters"
+    "Debuggers"
   ],
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/rubyide/vscode-ruby.git"
+    "url": "https://github.com/dlanileonardo/vscode-ruby.git"
   },
   "bugs": {
-    "url": "https://github.com/rubyide/vscode-ruby/issues"
+    "url": "https://github.com/dlanileonardo/vscode-ruby/issues"
   },
   "dependencies": {
     "async": "^2.3.0",
@@ -55,8 +35,8 @@
     "minimatch": "^3.0.3",
     "ruby-method-locate": "*",
     "vscode": "^1.1.4",
-    "vscode-debugadapter": "^1.19.0",
-    "vscode-debugprotocol": "^1.19.0",
+    "vscode-debugadapter": "^1.22.0",
+    "vscode-debugprotocol": "^1.29.0",
     "xmldom": "^0.1.19"
   },
   "devDependencies": {
@@ -79,10 +59,9 @@
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./src",
-    "compile": "tsc -p ./src",
+    "compile": "rm -rf ./out && tsc -p ./src",
     "watch": "tsc -w -p ./src",
-    "test": "node ./node_modules/mocha/bin/mocha --recursive ./out/*.test.js",
-    "test-debugger": "node ./node_modules/mocha/bin/mocha --timeout 15000 -u tdd ./out/debugger/tests/*.js",
+    "test": "npm run compile && node ./node_modules/mocha/bin/mocha --recursive --timeout 15000 -u tdd ./out/tests/*.test.js",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "update-all-grammars": "node scripts/update-all-grammars",
     "update-grammar": "node scripts/update-grammar atom/language-ruby",
@@ -93,325 +72,24 @@
     "onLanguage:erb",
     "onCommand:workbench.action.tasks.runTask"
   ],
-  "main": "./out/ruby.js",
+  "main": "./out/extension",
   "contributes": {
-    "snippets": [
+    "breakpoints": [
       {
-        "language": "ruby",
-        "path": "./snippets/ruby.json"
-      },
-      {
-        "language": "erb",
-        "path": "./snippets/erb.json"
-      }
-    ],
-    "commands": [
-      {
-        "command": "ruby.reloadProject",
-        "title": "Ruby: Reload Project"
-      }
-    ],
-    "configuration": {
-      "title": "ruby language settings",
-      "properties": {
-        "ruby.locate": {
-          "type": "object",
-          "description": "Defines where the Ruby extension will look to find Modules, Classes and methods.",
-          "default": {
-            "exclude": "{**/@(test|spec|tmp|.*),**/@(test|spec|tmp|.*)/**,**/*_spec.rb}",
-            "include": "**/*.rb"
-          },
-          "properties": {
-            "include": {
-              "type": "string",
-              "description": "glob pattern to select files to parse. Matches are performed against the path relative to the workspace root",
-              "default": "**/*.rb"
-            },
-            "exclude": {
-              "type": "string",
-              "description": "glob pattern to select files to ignore, this is also run against paths for exclusion from walking. Matches are performed against the path relative to the workspace root",
-              "default": "{**/@(test|spec|tmp|.*),**/@(test|spec|tmp|.*)/**,**/*_spec.rb}"
-            }
-          }
-        },
-        "ruby.interpreter.commandPath": {
-          "type": "string",
-          "default": "ruby",
-          "description": "Path to the Ruby interpreter.  Set this to an absolute path to select from multiple installed Ruby versions.",
-          "isExecutable": true
-        },
-        "ruby.codeCompletion": {
-          "type": ["boolean", "string"],
-          "enum": [false, "rcodetools"],
-          "default": false,
-          "description": "Method to use for code completion. Use `false` to disable or if another extension provides this feature."
-        },
-        "ruby.intellisense": {
-          "type": ["boolean", "string"],
-          "enum": [false, "rubyLocate"],
-          "default": false,
-          "description": "Method to use for intellisense (go to definition, etc.). Use `false` to disable or if another extension provides this feature."
-        },
-        "ruby.useBundler": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether ruby tools should be started using Bundler"
-        },
-        "ruby.pathToBundler": {
-          "type": "string",
-          "default": "bundle",
-          "description": "Path to the bundler executable (used if useBundler is true)"
-        },
-        "ruby.rctComplete.commandPath": {
-          "type": "string",
-          "default": "rct-complete",
-          "description": "Path to the rct-complete command.  Set this to an absolute path to select from multiple installed Ruby versions.",
-          "isExecutable": true
-        },
-        "ruby.lintDebounceTime": {
-          "type": "integer",
-          "default": 500,
-          "description": "Time (ms) to wait after keypress before running enabled linters. Ensures linters are only run when typing has finished and not for every keypress"
-        },
-        "ruby.lint": {
-          "type": "object",
-          "description": "Set individual ruby linters to use",
-          "properties": {
-            "ruby": {
-              "type": [
-                "boolean",
-                "object"
-              ],
-              "default": false,
-              "description": "Use ruby -wc to lint"
-            },
-            "debride": {
-              "type": [
-                "boolean",
-                "object"
-              ],
-              "default": false,
-              "properties": {
-                "rails": {
-                  "type": "boolean",
-                  "default": "true",
-                  "description": "Add some rails call conversions"
-                }
-              },
-              "description": "Use debride to lint"
-            },
-            "fasterer": {
-              "type": "boolean",
-              "default": false,
-              "description": "Use fasterer to lint"
-            },
-            "reek": {
-              "type": "boolean",
-              "default": false,
-              "description": "Use reek to lint"
-            },
-            "rubocop": {
-              "type": [
-                "boolean",
-                "object"
-              ],
-              "default": false,
-              "description": "Use RuboCop to lint",
-              "properties": {
-                "lint": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Enable Lint cops: Lint cops check for possible errors and very bad practices in your code. RuboCop implements in a portable way all built-in MRI lint checks (ruby -wc) and adds a lot of extra lint checks of its own."
-                },
-                "only": {
-                  "type": "array",
-                  "description": "Run only the specified cop(s) and/or cops in the specified departments",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "except": {
-                  "type": "array",
-                  "description": "Run all cops enabled by configuration except the specified cop(s) and/or departments",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "require": {
-                  "type": "array",
-                  "description": "Require Ruby files",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "rails": {
-                  "type": "boolean",
-                  "default": false,
-                  "description": "Rails cops are specific to the Ruby on Rails framework"
-                }
-              }
-            },
-            "ruby-lint": {
-              "type": [
-                "boolean",
-                "object"
-              ],
-              "default": false,
-              "description": "Use ruby-lint to lint",
-              "properties": {
-                "levels": {
-                  "type": "array",
-                  "description": "Level of offenses to show",
-                  "items": {
-                    "type": "string",
-                    "enum": [
-                      "error",
-                      "warning",
-                      "info"
-                    ]
-                  }
-                },
-                "classes": {
-                  "type": "array",
-                  "description": "Classes of offenses to show",
-                  "items": {
-                    "type": "string",
-                    "enum": [
-                      "argument_amount",
-                      "loop_keywords",
-                      "pedantics",
-                      "shadowing_variables",
-                      "undefined_methods",
-                      "undefined_variables",
-                      "unused_variables",
-                      "useless_equality_checks"
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "ruby.format": {
-          "type": [ "boolean", "string" ],
-          "enum": [ false, "rubocop" ],
-          "default": false,
-          "description": "Which system to use for formatting. Use `false` to disable or if another extension provides this feature."
-        }
-      }
-    },
-    "languages": [
-      {
-        "id": "ruby",
-        "aliases": [
-          "Ruby",
-          "ruby"
-        ],
-        "firstLine": "^#!\\s*/.*(?:ruby|rbx|rake)\\b",
-        "extensions": [
-          ".arb",
-          ".builder",
-          ".cgi",
-          ".fcgi",
-          ".gemspec",
-          ".god",
-          ".irbrc",
-          ".jbuilder",
-          ".mspec",
-          ".pluginspec",
-          ".podspec",
-          ".prawn",
-          ".pryrc",
-          ".rabl",
-          ".rake",
-          ".rb",
-          ".rbuild",
-          ".rbw",
-          ".rbx",
-          ".rjs",
-          ".ru",
-          ".ruby",
-          ".spec",
-          ".thor",
-          ".watchr"
-        ],
-        "filenames": [
-          "appfile",
-          "appraisals",
-          "berksfile",
-          "brewfile",
-          "capfile",
-          "fastfile",
-          "guardfile",
-          "podfile",
-          "puppetfile",
-          "rakefile",
-          "snapfile",
-          "thorfile",
-          "vagrantfile",
-          "dangerfile"
-        ],
-        "configuration": "./language-configuration-ruby.json"
-      },
-      {
-        "id": "erb",
-        "aliases": [
-          "erb",
-          "Encapsulated Ruby"
-        ],
-        "extensions": [
-          ".erb",
-          ".rhtml",
-          ".rhtm"
-        ],
-        "configuration": "./language-configuration-erb.json"
-      },
-      {
-        "id": "gemfile",
-        "aliases": [
-          "Gemfile",
-          "Bundler",
-          "bundler"
-        ],
-        "filenames": [
-          "Gemfile"
-        ],
-        "configuration": "./language-configuration-ruby.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "ruby",
-        "scopeName": "source.ruby",
-        "path": "./syntaxes/ruby.cson.json"
-      },
-      {
-        "language": "erb",
-        "scopeName": "text.html.erb",
-        "path": "./syntaxes/erb.cson.json",
-        "embeddedLanguages": {
-          "source.css": "css",
-          "source.js": "javascript",
-          "source.ruby": "ruby"
-        }
-      },
-      {
-        "language": "gemfile",
-        "scopeName": "source.ruby.gemfile",
-        "path": "./syntaxes/gemfile.cson.json"
+        "language": "Ruby"
       }
     ],
     "debuggers": [
       {
-        "type": "Ruby",
-        "label": "Ruby",
+        "type": "RubyDebugger",
+        "label": "RubyDebugger",
         "enableBreakpointsFor": {
           "languageIds": [
             "ruby",
             "erb"
           ]
         },
-        "program": "./out/debugger/main.js",
+        "program": "./out/debugger.js",
         "runtime": "node",
         "configurationAttributes": {
           "launch": {

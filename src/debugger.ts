@@ -358,6 +358,7 @@ class RubyDebugSession extends LoggingDebugSession {
             name: variable.name,
             kind: variable.kind,
             type: variable.type,
+            evaluateName: variable.name,
             value: variable.value === undefined ? 'undefined' : variable.value,
             id: variable.objectId,
             variablesReference: variable.hasChildren === 'true' ? this._variableHandles.create({objectId:variable.objectId}):0

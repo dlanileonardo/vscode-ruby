@@ -5,7 +5,7 @@
 
 "use strict";
 
-import assert = require('assert');
+import * as assert from 'assert';
 import * as Path from 'path';
 // import {DebugClient} from './debugClient';
 import {DebugProtocol} from 'vscode-debugprotocol';
@@ -13,9 +13,9 @@ import {DebugClient} from 'vscode-debugadapter-testsupport';
 
 suite('Node Debug Adapter', () => {
 
-	const DEBUG_ADAPTER = './out/debugger/main.js';
+	const DEBUG_ADAPTER = './out/debugger.js';
 
-	const DATA_ROOT = Path.join(Path.join(__dirname, '../../../'), 'src/debugger/tests/data/');
+	const DATA_ROOT = Path.join(Path.join(__dirname, '../../../'), './src/tests/data/');
 
 
 	let dc: DebugClient;
